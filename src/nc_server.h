@@ -62,8 +62,10 @@
 typedef uint32_t (*hash_t)(const char *, size_t);
 
 struct continuum {
+    //struct array       index;               /* server[] */
     uint32_t index;  /* server index */
     uint32_t value;  /* hash value */
+    uint32_t multi[10];
 };
 
 struct server {

@@ -614,13 +614,18 @@ server_pool_server(struct server_pool *pool, uint8_t *key, uint32_t keylen)
     struct server *server;
     uint32_t hash, idx;
 
+#define MAX_REPLICAS_PER_NODE 10
+
+    uint32_t* indexes;
+    uint32_t i;
+
     ASSERT(array_n(&pool->server) != 0);
     ASSERT(key != NULL && keylen != 0);
 
     switch (pool->dist_type) {
     case DIST_KETAMA:
         hash = server_pool_hash(pool, key, keylen);
-        idx = ketama_dispatch(pool->continuum, pool->ncontinuum, hash);
+        indexes = ketama_dispatch(pool->continuum, pool->ncontinuum, hash);
         break;
 
     case DIST_MODULA:
@@ -637,6 +642,29 @@ server_pool_server(struct server_pool *pool, uint8_t *key, uint32_t keylen)
         return NULL;
     }
     ASSERT(idx < array_n(&pool->server));
+
+    for (i = 0; i < 10; i++) {
+        if (indexes[i] == -1) {
+            break;
+        }
+
+        log_debug(LOG_VERB, "get index[%d] = %d", i, indexes[i]);
+    }
+
+    idx = 0;
+
+    // Dara: Add a new field to pool to indicate whether it allows multiple
+    // hosts per hash name.
+    //
+    // For now, just randomly choose between the results.  In next iteration,
+    // prioritize by local machine. local region, then global.  Who will be
+    // responsible for :set
+    
+    uint32_t randomIdx = random() % i;
+    idx = indexes[randomIdx];
+
+    log_debug(LOG_VERB, "indexes size: %d random index: %d associated server_index: %d", 
+            i, randomIdx, idx);
 
     server = array_get(&pool->server, idx);
 
