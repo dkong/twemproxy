@@ -296,7 +296,7 @@ ketama_update(struct server_pool *pool)
                             // Dara: Currently assumes same hash nodes are specified sequentially in config.
                             // Need to look up by value to find correct continuum to use.
                             pool->continuum[continuum_index_temp].index = server_index;
-                            pool->continuum[continuum_index_temp++].value = value;
+                            pool->continuum[continuum_index_temp].value = value;
 
                             uint32_t* multi = pool->continuum[continuum_index_temp].multi;
                             for (z = 0; z < 10; z++) {
@@ -310,6 +310,8 @@ ketama_update(struct server_pool *pool)
                                 log_debug(LOG_VERB, "Unable to find free slot in continuum %d to store server index %d",
                                         continuum_index_temp, server_index);
                             }
+
+                            continuum_index_temp++;
                         }
                     }
                 }
