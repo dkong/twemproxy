@@ -180,9 +180,9 @@ nc_print_run(struct instance *nci)
 
     status = uname(&name);
     if (status < 0) {
-        loga("nutcracker-%s started on pid %d", NC_VERSION_STRING, nci->pid);
+        loga("nutcracker-%s (dara) started on pid %d", NC_VERSION_STRING, nci->pid);
     } else {
-        loga("nutcracker-%s built for %s %s %s started on pid %d",
+        loga("nutcracker-%s (dara) built for %s %s %s started on pid %d",
              NC_VERSION_STRING, name.sysname, name.release, name.machine,
              nci->pid);
     }
