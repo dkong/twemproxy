@@ -641,31 +641,31 @@ server_pool_server(struct server_pool *pool, uint8_t *key, uint32_t keylen)
         NOT_REACHED();
         return NULL;
     }
-    ASSERT(idx < array_n(&pool->server));
-
-    for (i = 0; i < 10; i++) {
-        if (indexes[i] == -1) {
-            break;
-        }
-
-        log_debug(LOG_VERB, "get index[%d] = %d", i, indexes[i]);
-    }
-
-    idx = 0;
-
-    // Dara: Add a new field to pool to indicate whether it allows multiple
-    // hosts per hash name.
-    //
-    // For now, just randomly choose between the results.  In next iteration,
-    // prioritize by local machine. local region, then global.  Who will be
-    // responsible for :set
     
-    uint32_t randomIdx = random() % i;
-    idx = indexes[randomIdx];
-
-    log_debug(LOG_VERB, "indexes size: %d random index: %d associated server_index: %d", 
-            i, randomIdx, idx);
-
+    if(pool->dist_type == DIST_KETAMA){
+        for (i = 0; i < 10; i++) {
+            if (indexes[i] == -1) {
+                break;
+            }
+   
+            log_debug(LOG_VERB, "get index[%d] = %d", i, indexes[i]);
+        }
+   
+        idx = 0;
+   
+        // Add a new field to pool to indicate whether it allows multiple
+        // hosts per hash name.
+        //
+        // For now, just randomly choose between the results.  In next iteration,
+        // prioritize by local machine. local region, then global.  Who will be
+        // responsible for :set
+   
+        uint32_t randomIdx = random() % i;
+        idx = indexes[randomIdx];
+        log_debug(LOG_DEBUG, "indexes size: %d random index: %d associated server_index: %d", i, randomIdx, idx);
+    }
+    
+    ASSERT(idx < array_n(&pool->server));
     server = array_get(&pool->server, idx);
 
     log_debug(LOG_VERB, "key '%.*s' on dist %d maps to server '%.*s'", keylen,
